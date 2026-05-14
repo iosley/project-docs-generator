@@ -46,6 +46,40 @@ Go deeper only when the topic warrants it — non-obvious environment-variable b
 - Emoji spam (one per section header is plenty; none inside paragraphs).
 - "TODO" / "TBD" / placeholders in a final doc. Either fill them or remove them.
 
+## Localization
+
+The default language is **English**. Switch only when the user explicitly requests another language via a flag (`--language pt-BR`, `--language es`) or a natural phrase ("em português", "in spanish", "documentación en español").
+
+When a non-English language is active, apply this checklist:
+
+| Element | Translate? |
+| --- | --- |
+| Prose, paragraphs, headings | **Yes** |
+| Table headers and cell descriptions | **Yes** |
+| Mermaid node labels and inline comments | **Yes** |
+| File paths and directory names | No |
+| Identifier names (functions, classes, variables) | No |
+| Env var names (`DATABASE_URL`, `PORT`) | No |
+| Commands and CLI invocations | No |
+| Code blocks (any language) | No |
+| Mermaid keywords (`flowchart`, `sequenceDiagram`) | No |
+| README badges | No (universal convention) |
+| File names inside `docs/` | No (keep `overview.md`, `getting-started.md`, etc.) |
+| Commit-message prefixes (`feat:`, `fix:`) | No |
+
+**Project nouns** — if the project itself uses a non-English name or terms (e.g. a product called "Conta Azul"), keep them as-is regardless of doc language.
+
+**Tone in non-English output** — keep the same voice rules above. The "concise, developer-friendly, active voice" guidance translates directly: "Run `npm install`" → "Execute `npm install`" (pt-BR) / "Ejecuta `npm install`" (es).
+
+## Depth modes
+
+The skill supports two output depths:
+
+- **`normal` (default)** — the "practical overview" depth described above. Documents modules and where their logic lives; does not catalog every function.
+- **`deep`** — opt-in via `--depth=deep` or an explicit phrase ("per-function docs", "deep reference", "documentação profunda"). Adds `reference/api-reference.md` (or `reference/api/*.md` for larger projects) with one entry per public export. See [`docs-structure.md`](docs-structure.md) for the deep-mode file layout and detection rules.
+
+Both modes follow the same voice and tone — deep mode adds **more** files, not denser prose.
+
 ## Length budgets (soft guidelines)
 
 | Doc | Target length |

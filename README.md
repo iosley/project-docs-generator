@@ -162,10 +162,10 @@ The skill enforces convention (file naming, structure, language adaptation) that
 - [x] Interactive checkpoints for `docs/` and `README.md`
 - [x] Adaptive `docs/` structure (HTTP vs CLI vs library)
 - [x] Embedded generic README template
-- [ ] Optional `--language pt-BR` / `--language es` for non-English output
-- [ ] Mermaid diagram generation for architecture overview
-- [ ] `--depth=deep` mode for full per-function reference docs
-- [ ] CONTRIBUTING.md / CODE_OF_CONDUCT.md generation as opt-in extras
+- [x] Optional `--language pt-BR` / `--language es` for non-English output
+- [x] Mermaid diagram generation for architecture overview
+- [x] `--depth=deep` mode for full per-function reference docs
+- [x] CONTRIBUTING.md / CODE_OF_CONDUCT.md generation as opt-in extras
 
 ## 🤝 Contributing
 

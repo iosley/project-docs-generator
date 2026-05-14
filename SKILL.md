@@ -37,6 +37,19 @@ Do **not** use this skill for:
 
 Follow these steps in order. The two interactive checkpoints (steps 2 and 4) exist specifically to avoid destroying existing user work — do not skip them.
 
+### Step 0 — Detect options from the user's request
+
+Before any other work, parse the user's prompt to detect optional behaviors. **Do not prompt the user about these** — only honor what they explicitly stated. Defaults stand otherwise.
+
+| Option | Default | How to enable |
+| --- | --- | --- |
+| `LANG` | `en` | Flag `--language pt-BR` / `--language es` / `--language <code>`, or explicit phrase ("em português", "in spanish", "documentación en español") |
+| `DEPTH` | `normal` | Flag `--depth=deep`, or explicit phrase ("per-function docs", "deep reference", "documentação profunda", "modo deep") |
+| `MERMAID` | `on` | Always on except: flag `--no-mermaid`, explicit opt-out phrase ("skip diagrams", "no mermaid", "sem diagramas"), or trivial project (<5 source files) |
+| `EXTRAS` | `off` | Flag `--extras`, `--contributing`, `--code-of-conduct`, or explicit phrase ("include contributing", "gerar code of conduct", "add CoC") |
+
+Record the resolved values internally and apply them consistently through every later step. Cite [`references/writing-guide.md`](references/writing-guide.md) for localization rules and [`references/docs-structure.md`](references/docs-structure.md) for depth-mode file layout.
+
 ### Step 1 — Understand the project
 
 Before writing anything, build a real mental model of the repository:
@@ -96,11 +109,12 @@ docs/
 
 **Writing rules for `docs/`:**
 
-- **English** (unless the user explicitly requested another language).
+- **Language** = `LANG` from Step 0 (default `en`). Translate prose only — never paths, identifiers, env vars, commands, or Mermaid keywords. See [`references/writing-guide.md`](references/writing-guide.md).
 - Each file is self-contained and links to siblings via relative paths.
 - Link source files with markdown links, e.g. `[src/api/routes.js](../../src/api/routes.js)`.
 - Every factual claim must be verifiable in the code you read.
-- Practical-overview depth by default — explain what each module does and where to find logic; do not exhaustively document every helper function.
+- **Depth** = `DEPTH` from Step 0. `normal` (default) produces the practical-overview tree. `deep` additionally generates `reference/api-reference.md` (or `reference/api/*.md`) with per-function entries — see [`references/docs-structure.md`](references/docs-structure.md).
+- **Mermaid diagrams**: when `MERMAID=on`, include the diagrams specified in [`references/mermaid-patterns.md`](references/mermaid-patterns.md) — one `flowchart` in `overview.md` and an interface-appropriate diagram in `architecture/<interface>.md`. Every node must map to a real file or service. Skip diagrams for trivial projects (<5 source files) or when the user opted out.
 - `docs/README.md` is the navigation index — it points to every other doc and groups them under "Start here / Architecture / Domains / Reference" headings.
 
 If the project uses anything non-obvious (special env-var conventions, multiple databases, framework quirks), put those in `reference/` rather than scattering them across other files.
@@ -140,16 +154,29 @@ The template is embedded in [`assets/readme-template.md`](assets/readme-template
 - Concise, scannable, developer-friendly.
 - Emojis are welcome for section headers (matches the template's style) — but don't pepper every line.
 - GitHub-flavored Markdown.
-- In English (unless the user asked otherwise).
+- Language follows `LANG` from Step 0 (default English). Badges stay in English regardless. See [`references/writing-guide.md`](references/writing-guide.md) for the full localization checklist.
 
 If `docs/` was generated (or already exists with meaningful content), the README's "Links" section should link to `docs/README.md` as the entry point for deeper documentation.
 
-### Step 6 — Wrap up
+### Step 6 — Generate extras (only when `EXTRAS=on`)
+
+Skip this step entirely when `EXTRAS=off` (the default). When the user opted in:
+
+1. Detect contribution-relevant signals (install / test / lint commands, commit convention, contact email) using the checklist in [`references/extras-templates.md`](references/extras-templates.md).
+2. Generate `CONTRIBUTING.md` at the project root — fill placeholders from real repo data; drop sections whose data isn't detectable. Apply the same overwrite checkpoint as the README: if the file exists, ask before replacing it.
+3. Generate `CODE_OF_CONDUCT.md` at the project root using the **Contributor Covenant 2.1** adoption template (the skill never authors a CoC from scratch). Same overwrite checkpoint applies.
+4. When `LANG != en`, translate prose per the rules in `extras-templates.md` and add the Contributor Covenant translation link for the target language.
+
+If either file exists and the user declines overwrite, skip that file and continue.
+
+### Step 7 — Wrap up
 
 Report to the user, briefly:
 
+- The active options resolved in Step 0 (`LANG`, `DEPTH`, `MERMAID`, `EXTRAS`) — useful so the user can verify their intent was understood.
 - Which files were created / updated under `docs/` (or "left as-is" if the user opted to keep it).
 - Whether the root `README.md` was created, overwritten, or skipped.
+- Which extras were generated (`CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`), or "not requested" if `EXTRAS=off`.
 - Any flags raised during code reading (e.g. an obvious bug, a typo in a filename, a missing env-var in `.env.example`).
 
 Do **not** commit. Let the user review and commit themselves.
@@ -202,13 +229,17 @@ Always cross-check the README against the docs you produced (or that already exi
 2. **Never overwrite a `README.md` without explicit consent.** The interactive checkpoint in step 4 is mandatory.
 3. **Never put the README template inside `docs/`.** The template is a skill-internal asset; it must only land in a temporary location during generation.
 4. **Adapt, don't transplant.** Treat the template's sections as a *layout*, not a verbatim output. Sections that don't fit should be renamed or dropped.
-5. **Write in English by default.** Switch only if the user explicitly says otherwise.
-6. **Don't commit.** Leave files staged in the working directory for the user to review.
+5. **Write in English by default.** Switch only if the user explicitly says otherwise (flag or natural phrase). Even then, never translate identifiers, paths, env vars, commands, or code.
+6. **Never invent Mermaid nodes.** Every node in a generated diagram must correspond to a real file, module, class, or external service that was read in the code.
+7. **Never author a Code of Conduct from scratch.** When `EXTRAS=on`, always use the Contributor Covenant 2.1 adoption template in [`references/extras-templates.md`](references/extras-templates.md).
+8. **Don't commit.** Leave files staged in the working directory for the user to review.
 
 ---
 
 ## Reference files
 
 - [`assets/readme-template.md`](assets/readme-template.md) — the generic README layout, copied to a temp location and adapted per project. Source of truth for README structure.
-- [`references/docs-structure.md`](references/docs-structure.md) — recommended `docs/` tree, per-file content guide, and adaptation rules.
-- [`references/writing-guide.md`](references/writing-guide.md) — voice, tone, and depth guidelines for the generated docs and README.
+- [`references/docs-structure.md`](references/docs-structure.md) — recommended `docs/` tree, per-file content guide, depth-mode rules, localization, and adaptation rules.
+- [`references/writing-guide.md`](references/writing-guide.md) — voice, tone, depth modes, and localization guidelines for the generated docs and README.
+- [`references/mermaid-patterns.md`](references/mermaid-patterns.md) — when/where to embed Mermaid diagrams, plus templates per project type (service, CLI, library, worker, monorepo).
+- [`references/extras-templates.md`](references/extras-templates.md) — `CONTRIBUTING.md` template and `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1) adoption template, generated only when `EXTRAS=on`.

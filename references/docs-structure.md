@@ -35,7 +35,7 @@ docs/
 ### `overview.md`
 - What the project does (concrete, grounded in code).
 - Why it matters (business / user value).
-- High-level architecture (ASCII or mermaid diagram is welcome).
+- High-level architecture — **include a Mermaid `flowchart`** by default (see [`mermaid-patterns.md`](mermaid-patterns.md) for the template per project type). Skip the diagram if the project is trivial (<5 source files) or the user opted out.
 - Tech stack at a glance.
 - Entry-point file table (file path + purpose).
 - Link to `architecture/project-structure.md` for the full layout.
@@ -68,6 +68,7 @@ docs/
 - Request/response (or input/output) shape for each.
 - Error-handling conventions.
 - Authentication, if any.
+- **Include a Mermaid diagram** matching the interface (`sequenceDiagram` for HTTP request lifecycle, `flowchart TD` for CLI command dispatch, `classDiagram` for library exports). See [`mermaid-patterns.md`](mermaid-patterns.md).
 
 ### `architecture/cron-jobs.md` / `workers.md`
 - Schedule table (name → cron expr → timezone → what it runs).
@@ -97,6 +98,32 @@ docs/
 - Repository → table mapping.
 - Pointers to SQL/migration files.
 
+### `reference/api-reference.md` (only when `DEPTH=deep`)
+
+Generated only when the user explicitly opts into deep mode (via `--depth=deep` or a phrase like "per-function docs", "deep reference", "documentação profunda"). Default mode (practical-overview) **omits** this file entirely.
+
+Content:
+
+- One entry per **public** export (function, class, constant) — skip private / internal / test helpers.
+- For each entry:
+  - **Signature** in a code block, using the project's primary language.
+  - **Parameters** — short table with name, type, description.
+  - **Returns** — type and one-line description.
+  - **Throws / errors** if applicable.
+  - **Example** — one minimal usage snippet, only if it adds value beyond the signature.
+  - **Source link** — `[file.ts:42](../../path/to/file.ts#L42)`.
+- Group entries by module / file. Use H2 per module, H3 per export.
+- If the file exceeds ~600 lines, split into per-domain files: `reference/api/<domain>.md` plus an index `reference/api/README.md`.
+- For monorepos: one file per package — `reference/api/<package-name>.md`.
+
+Detection rules for "public":
+
+- **TypeScript / JavaScript** — `export` keyword, excludes `_`-prefixed names.
+- **Python** — top-level names not starting with `_`, or items listed in `__all__`.
+- **Go** — capitalized identifiers (exported).
+- **Rust** — `pub` visibility.
+- **Java / Kotlin** — `public` (or default-package members in single-package libs).
+
 ## Adaptation rules
 
 **Library / SDK projects** — replace `http-api.md` with `library-api.md`. Drop `deployment.md` and add a publish/release section to `getting-started.md`. Drop `domains/` if the library has a single concern.
@@ -125,3 +152,15 @@ docs/
 - One topic per file. If a file is growing past ~300 lines, split it.
 - Internal cross-links liberally — readers should never get stuck.
 - Code blocks use language tags (` ```bash`, ` ```json`, ` ```js`).
+
+## Localization
+
+Default output language is **English**. The user may request another language explicitly (via `--language pt-BR`, `--language es`, or a natural phrase like "documente em português", "in spanish"). When a non-English language is active:
+
+- All prose, section titles, and table headers are written in the target language.
+- **Never translate**: file paths, identifier names, env var names, command-line invocations, code samples, Mermaid diagram keywords (`flowchart`, `sequenceDiagram`, `participant`, etc.), commit-message prefixes (`feat:`, `fix:`), or badges.
+- README badges remain in English — they are universal conventions.
+- Mermaid **node labels** are translated; Mermaid syntax is not.
+- File names inside `docs/` stay in English (`overview.md`, `getting-started.md`, `architecture/http-api.md`) for portability and convention.
+
+See [`writing-guide.md`](writing-guide.md) for the full localization checklist.
