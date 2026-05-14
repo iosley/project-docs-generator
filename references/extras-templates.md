@@ -19,7 +19,7 @@ Generate from real signals detected in the repo. **Do not invent commands** — 
 | Lint / format command | `scripts.lint`, `.eslintrc`, `ruff.toml`, `.golangci.yml` | "Code style" |
 | Commit convention | `git log --oneline -30` — look for `feat:` / `fix:` prefixes | "Commit messages" |
 | PR template | `.github/pull_request_template.md` | "Submitting changes" |
-| Branch model | CI triggers, recent branch names | "Branching" |
+| Branch model | `git branch -a`, CI triggers, recent branch names, presence of `develop` branch | "Branching" |
 | Issue templates | `.github/ISSUE_TEMPLATE/` | "Reporting issues" |
 
 ### Template
@@ -55,8 +55,7 @@ See [docs/getting-started.md](./docs/getting-started.md) for a deeper walkthroug
 
 ### Branching
 
-- Create a feature branch from `{{DEFAULT_BRANCH}}`: `git checkout -b feat/short-description`
-- Keep branches focused — one feature or fix per branch.
+{{BRANCHING_BLOCK}}
 
 ### Commit messages
 
@@ -88,7 +87,7 @@ The CI will run the same checks — fixing locally is faster than waiting for th
 
 ## Submitting changes
 
-1. Push your branch and open a Pull Request against `{{DEFAULT_BRANCH}}`.
+1. Push your branch and open a Pull Request against `{{PR_TARGET_BRANCH}}`.
 2. Fill out the PR template (if one exists). Otherwise include:
    - **What** — a one-line summary.
    - **Why** — the user-facing problem or motivation.
@@ -123,10 +122,104 @@ By contributing you agree that your contributions will be licensed under the pro
 | `{{TEST_COMMAND}}` | detected test script |
 | `{{LINT_COMMAND}}` | detected lint script — drop the whole section if no linter is configured |
 | `{{DEFAULT_BRANCH}}` | `git symbolic-ref refs/remotes/origin/HEAD` or fallback `main` |
+| `{{PR_TARGET_BRANCH}}` | derived from branching strategy detection — see "Branching strategy detection" below |
+| `{{BRANCHING_BLOCK}}` | rendered branching guidance — see "Branching strategy detection" below |
 | `{{COMMIT_CONVENTION}}` | "Conventional Commits" if `feat:`/`fix:` prefixes dominate recent history; otherwise "the existing commit style in `git log`" |
 | `{{CONTACT_EMAIL}}` | `package.json` `author.email`, `pyproject.toml` `authors`, or `git config user.email` |
 
 Trim any section whose data isn't available — don't leave placeholders unresolved.
+
+### Branching strategy detection
+
+Pick the branch model from real repo signals — **do not assume Git Flow blindly**. The skill follows whatever pattern the project already uses; Git Flow is only the default when the project has no established pattern of its own.
+
+**Detection order (first match wins):**
+
+1. **Project documents its own model** — if `CONTRIBUTING.md` (existing), `docs/`, repo wiki, or README already describe a branching workflow, mirror it verbatim. Stop here.
+2. **Trunk-based** — only `{{DEFAULT_BRANCH}}` exists on the remote (no `develop`, no long-lived release branches), and recent merged PRs target `{{DEFAULT_BRANCH}}` directly. Use the **Trunk-based block**.
+3. **GitHub Flow** — `{{DEFAULT_BRANCH}}` plus short-lived topic branches, no `develop`, no `release/*`. Use the **GitHub Flow block** (it is a labeled variant of trunk-based with a stronger PR emphasis).
+4. **GitLab Flow** — environment branches like `staging`, `pre-production`, `production` alongside `{{DEFAULT_BRANCH}}`. Use the **GitLab Flow block**.
+5. **Git Flow** — a `develop` branch exists on origin, or `feature/*`, `release/*`, `hotfix/*` prefixes appear in `git branch -a` / recent history. Use the **Git Flow block**.
+6. **No clear signal** — fall back to the **Git Flow block** as the documented default for a new contributor workflow, but explicitly note in the wrap-up that no convention was detected so the maintainer can override.
+
+Commands to run for detection:
+
+```bash
+git symbolic-ref refs/remotes/origin/HEAD          # default branch
+git branch -a                                       # all branches (local + remote)
+git for-each-ref --format='%(refname:short)' refs/remotes/origin/ | head -40
+git log --all --oneline -50                         # recent activity / merge patterns
+```
+
+**`{{PR_TARGET_BRANCH}}`** is the branch contributors open PRs against:
+
+- Git Flow → `develop`
+- Trunk-based / GitHub Flow / GitLab Flow / unknown → `{{DEFAULT_BRANCH}}`
+
+#### Branching blocks
+
+Render the block that matches the detected strategy into `{{BRANCHING_BLOCK}}`. Substitute `{{DEFAULT_BRANCH}}` inside the block too.
+
+**Git Flow block** (default when no convention is detected):
+
+```markdown
+This project follows the **Git Flow** branching model.
+
+- `{{DEFAULT_BRANCH}}` — always reflects production-ready state. Only release and hotfix merges land here.
+- `develop` — integration branch for the next release. All feature work merges here first.
+- `feature/<short-description>` — new features, branched from `develop`, merged back into `develop`.
+- `release/<version>` — release stabilization, branched from `develop`, merged into both `{{DEFAULT_BRANCH}}` and `develop`.
+- `hotfix/<short-description>` — urgent production fixes, branched from `{{DEFAULT_BRANCH}}`, merged into both `{{DEFAULT_BRANCH}}` and `develop`.
+- `bugfix/<short-description>` — non-urgent fixes targeting the current release, branched from `develop`.
+
+Typical contributor flow:
+
+```bash
+git checkout develop
+git pull
+git checkout -b feature/short-description
+# ... commit work ...
+git push -u origin feature/short-description
+# open a Pull Request against `develop`
+```
+
+Keep branches focused — one feature or fix per branch.
+```
+
+**Trunk-based block**:
+
+```markdown
+This project uses a **trunk-based** workflow — all work targets `{{DEFAULT_BRANCH}}` through short-lived branches.
+
+- Create a topic branch from `{{DEFAULT_BRANCH}}`: `git checkout -b feat/short-description`
+- Keep branches short-lived (typically < 1–2 days) and focused — one feature or fix per branch.
+- Rebase on `{{DEFAULT_BRANCH}}` regularly to minimize merge conflicts.
+- Open a Pull Request against `{{DEFAULT_BRANCH}}`.
+```
+
+**GitHub Flow block**:
+
+```markdown
+This project follows **GitHub Flow** — `{{DEFAULT_BRANCH}}` is always deployable, and all work happens on topic branches.
+
+- Branch from `{{DEFAULT_BRANCH}}`: `git checkout -b feat/short-description`
+- Push early and open a Pull Request against `{{DEFAULT_BRANCH}}` — even before the work is finished — so review can happen incrementally.
+- Keep branches focused and short-lived.
+- Merge to `{{DEFAULT_BRANCH}}` only after review approval and green CI.
+```
+
+**GitLab Flow block**:
+
+```markdown
+This project uses a **GitLab Flow** variant with environment branches.
+
+- `{{DEFAULT_BRANCH}}` — main integration branch. Topic branches merge here first.
+- Environment branches (e.g. `staging`, `production`) track what is deployed where; promotion is done by merging `{{DEFAULT_BRANCH}}` into the next environment branch.
+- Create a topic branch from `{{DEFAULT_BRANCH}}`: `git checkout -b feat/short-description`
+- Open a Pull Request against `{{DEFAULT_BRANCH}}`. Releases are driven by promoting commits to the environment branches, not by merging feature branches directly into them.
+```
+
+If the project's own documentation describes the model (detection step 1), reproduce that description instead of using these blocks.
 
 ---
 
