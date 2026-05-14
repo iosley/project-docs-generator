@@ -1,0 +1,29 @@
+{
+  "skill_name": "project-docs-generator",
+  "evals": [
+    {
+      "id": 0,
+      "name": "greenfield-node-http-service",
+      "prompt": "I have a Node.js HTTP service at the path provided in the working directory. There's no docs/ folder and no README.md yet. Please generate structured documentation under docs/ (English) and a polished root README.md. The README template you use should be temporary — do not place it inside docs/. The project root for this task is the working directory you are operating in.",
+      "fixture": "greenfield-node",
+      "expected_output": "A complete docs/ tree (index, overview, getting-started, deployment, architecture/, domains/, reference/) and a root README.md grounded in the project's real code (Express + Knex + Postgres). No README template artifact left inside docs/.",
+      "files": []
+    },
+    {
+      "id": 1,
+      "name": "python-cli-readme-overwrite-declined",
+      "prompt": "Please document this Python CLI project. It has an existing README.md that I want to KEEP — if the workflow asks whether to overwrite the README, say NO and stop without writing one. Generate docs/ in English. The project root is the working directory.",
+      "fixture": "python-existing-readme",
+      "expected_output": "A docs/ tree adapted to a Python CLI (mentions `myanalyzer` CLI commands, Click, pandas, pyproject.toml). The original README.md must remain UNCHANGED (its content includes 'DO NOT OVERWRITE — this is my hand-written README'). No new README written.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "existing-docs-keep-readme-only",
+      "prompt": "This project already has a docs/ folder with curated content I want to keep. When the workflow asks about docs/, choose 'keep as-is'. It does not have a root README.md — please generate one, adapting the template to this stack (Express + RabbitMQ workers + Nodemailer). Project root is the working directory.",
+      "fixture": "existing-docs-node",
+      "expected_output": "The existing docs/ directory remains UNCHANGED (the original files still contain their original text, e.g. 'These docs already exist and are GOOD'). A new README.md exists at the project root, mentions the actual stack (Express, AMQP/RabbitMQ via amqplib, Nodemailer, workers), and links to docs/README.md.",
+      "files": []
+    }
+  ]
+}
