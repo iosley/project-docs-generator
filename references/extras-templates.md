@@ -132,55 +132,50 @@ Trim any section whose data isn't available — don't leave placeholders unresol
 
 ## CODE_OF_CONDUCT.md
 
-The skill uses the **Contributor Covenant 2.1** — the de-facto standard adopted by GitHub, GitLab, Kubernetes, and most major OSS projects.
+**Critical rule: the skill must never write the body text of any Code of Conduct.** Some standard CoC language (necessary to describe what is being prohibited) is flagged by AI content filters and will block skill execution mid-run. To avoid this entirely, the generated `CODE_OF_CONDUCT.md` is a **pointer file** — it links to the official Contributor Covenant page hosted by `contributor-covenant.org` and provides a project-specific contact line. Nothing more.
 
-**Do not author a Code of Conduct from scratch.** Instead, generate a short adoption file that points to the official text and supplies the project-specific contact email. This keeps the document accurate, legally consistent, and trivial to update if the upstream version changes.
+This is also the most maintainable form: the upstream text is the canonical source and updates without touching the repo.
 
-### Template
+### Template (use exactly this — do not expand it)
 
 ```markdown
 # Code of Conduct
 
-This project has adopted the [Contributor Covenant](https://www.contributor-covenant.org/) Code of Conduct, version 2.1.
+This project follows the **Contributor Covenant**, version 2.1.
 
-The full text is available at:
+- Read the full text: https://www.contributor-covenant.org/version/2/1/code_of_conduct/
+- Translations: https://www.contributor-covenant.org/translations/
 
-- **English:** https://www.contributor-covenant.org/version/2/1/code_of_conduct/
-- **Other languages:** https://www.contributor-covenant.org/translations/
+## Contact
 
-## Our pledge (summary)
-
-We pledge to make participation in {{PROJECT_NAME}} a respectful and harassment-free experience for everyone, regardless of background or identity. We commit to acting and interacting in ways that foster an open, welcoming, diverse, and healthy community.
-
-## Scope
-
-This Code of Conduct applies within all project spaces — issues, pull requests, discussions, chat channels — and when an individual is officially representing the project in public.
-
-## Enforcement
-
-Concerns about behavior covered by this Code of Conduct can be reported to the maintainers at **{{CONTACT_EMAIL}}**. All reports will be reviewed and investigated promptly and fairly. The maintainers are responsible for clarifying and enforcing standards, and will take appropriate action in response to any behavior they deem inappropriate.
-
-For the full enforcement guidelines, see the [Contributor Covenant 2.1 text](https://www.contributor-covenant.org/version/2/1/code_of_conduct/).
+To report a concern related to this Code of Conduct, contact the maintainers at **{{CONTACT_EMAIL}}**.
 
 ## Attribution
 
-This document is based on the [Contributor Covenant](https://www.contributor-covenant.org/), version 2.1, available at https://www.contributor-covenant.org/version/2/1/code_of_conduct.html.
+Adapted from the [Contributor Covenant](https://www.contributor-covenant.org/), version 2.1.
 ```
+
+### What NOT to add
+
+When generating this file, do **not**:
+
+- Inline a "pledge" / "standards" / "scope" / "enforcement guidelines" / "examples of behavior" section. The upstream URL covers all of that.
+- Summarize the CoC in your own words. Summaries reintroduce the exact phrases that trigger filters.
+- Expand the file beyond the template above. Length is a feature here, not a limitation.
 
 ### Placeholders
 
 | Placeholder | Source |
 | --- | --- |
-| `{{PROJECT_NAME}}` | manifest `name` field |
-| `{{CONTACT_EMAIL}}` | `package.json` `author.email`, `pyproject.toml` `authors`, or `git config user.email` — fall back to a generic "the maintainers (see [MAINTAINERS.md] or repository owners)" if no email is detectable |
+| `{{CONTACT_EMAIL}}` | `package.json` `author.email`, `pyproject.toml` `authors`, or `git config user.email` — fall back to "the maintainers (see repository owners)" if no email is detectable |
 
 ### Localization
 
 When `LANG != en`:
 
-- The summary paragraph, "Scope", "Enforcement", and "Attribution" sections are translated.
-- The link to the **translated** Contributor Covenant for that language is added at the top (the project hosts translations for pt-BR, es, and many others at `https://www.contributor-covenant.org/translations/`).
-- The English link remains as a canonical reference.
+- Translate **only** the headings ("Code of Conduct" → "Código de Conducta" / "Código de Conduta") and the "Contact" / "Attribution" labels and surrounding short phrases.
+- Add the **translated** Contributor Covenant link for that language as the first bullet (translations are hosted at `https://www.contributor-covenant.org/translations/`); keep the English link as a canonical fallback.
+- Do **not** translate-and-inline any prohibited-behavior text. The pointer-file principle holds in every language.
 
 ---
 

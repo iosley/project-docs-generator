@@ -231,7 +231,7 @@ Always cross-check the README against the docs you produced (or that already exi
 4. **Adapt, don't transplant.** Treat the template's sections as a *layout*, not a verbatim output. Sections that don't fit should be renamed or dropped.
 5. **Write in English by default.** Switch only if the user explicitly says otherwise (flag or natural phrase). Even then, never translate identifiers, paths, env vars, commands, or code.
 6. **Never invent Mermaid nodes.** Every node in a generated diagram must correspond to a real file, module, class, or external service that was read in the code.
-7. **Never author a Code of Conduct from scratch.** When `EXTRAS=on`, always use the Contributor Covenant 2.1 adoption template in [`references/extras-templates.md`](references/extras-templates.md).
+7. **Never write the body text of a Code of Conduct.** When `EXTRAS=on`, generate `CODE_OF_CONDUCT.md` strictly as a **pointer file** linking to `https://www.contributor-covenant.org/version/2/1/code_of_conduct/` plus a contact line. Do not inline a "pledge", "standards", "scope", "enforcement", or any summary of those sections — standard CoC wording is blocked by AI content filters and will halt the skill mid-execution. Use the exact template in [`references/extras-templates.md`](references/extras-templates.md) without expansion.
 8. **Don't commit.** Leave files staged in the working directory for the user to review.
 
 ---
