@@ -111,7 +111,7 @@ Content:
   - **Returns** — type and one-line description.
   - **Throws / errors** if applicable.
   - **Example** — one minimal usage snippet, only if it adds value beyond the signature.
-  - **Source link** — `[file.ts:42](../../path/to/file.ts#L42)`.
+  - **Source link** — `[file.ts:42](../../path/to/file.ts#L42)`. Path is **relative to the doc file**, counting `../` hops to the target. Never absolute (`/Users/...`, `/home/...`, `C:\...`) or project-root-anchored (`/src/...`) — see the portability rule in [`writing-guide.md`](writing-guide.md).
 - Group entries by module / file. Use H2 per module, H3 per export.
 - If the file exceeds ~600 lines, split into per-domain files: `reference/api/<domain>.md` plus an index `reference/api/README.md`.
 - For monorepos: one file per package — `reference/api/<package-name>.md`.

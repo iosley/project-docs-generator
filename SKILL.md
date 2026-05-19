@@ -111,7 +111,11 @@ docs/
 
 - **Language** = `LANG` from Step 0 (default `en`). Translate prose only — never paths, identifiers, env vars, commands, or Mermaid keywords. See [`references/writing-guide.md`](references/writing-guide.md).
 - Each file is self-contained and links to siblings via relative paths.
-- Link source files with markdown links, e.g. `[src/api/routes.js](../../src/api/routes.js)`.
+- **Path model — relative to the file containing the link.** Count `../` hops from the doc's directory to the target. The docs must render correctly on any machine after `git clone`, so absolute paths (`/Users/...`, `/home/...`, `C:\...`, `file://...`) and project-root-anchored paths (`/src/...`) are forbidden everywhere — Markdown links, image `src`, Mermaid `click` directives, and any path string the reader is expected to follow.
+  - ✅ from `docs/architecture/http-api.md` → source: `[server.ts](../../src/server.ts)`
+  - ✅ from `docs/README.md` → sibling: `[overview](overview.md)`
+  - ✅ from root `README.md` → docs entry: `[docs/README.md](docs/README.md)`
+  - ❌ never: `/src/server.ts`, `/Users/me/repo/src/server.ts`, `~/repo/src/server.ts`, `file:///...`
 - Every factual claim must be verifiable in the code you read.
 - **Depth** = `DEPTH` from Step 0. `normal` (default) produces the practical-overview tree. `deep` additionally generates `reference/api-reference.md` (or `reference/api/*.md`) with per-function entries — see [`references/docs-structure.md`](references/docs-structure.md).
 - **Mermaid diagrams**: when `MERMAID=on`, include the diagrams specified in [`references/mermaid-patterns.md`](references/mermaid-patterns.md) — one `flowchart` in `overview.md` and an interface-appropriate diagram in `architecture/<interface>.md`. Every node must map to a real file or service. Skip diagrams for trivial projects (<5 source files) or when the user opted out.
@@ -137,7 +141,7 @@ This checkpoint is non-negotiable: silently overwriting a hand-written README is
 
 The template is embedded in [`assets/readme-template.md`](assets/readme-template.md). It is intentionally generic so it works for any stack. Process:
 
-1. **Copy** the template to a temporary location (e.g. `/tmp/readme-<random>.md` or a system temp file). **Never write the template into `docs/`** — the template is a skill internal, not a project artifact.
+1. **Copy** the template to an OS-portable system temp location (e.g. via `mktemp` on Unix, or the platform's temp directory — `$TMPDIR`, `%TEMP%`). Do **not** hardcode `/tmp/...`, and do **not** write the template into the project tree. **Never write the template into `docs/`** — the template is a skill internal, not a project artifact.
 2. **Adapt** the template to the actual project:
    - Replace every `{{PLACEHOLDER}}` with concrete content.
    - Rename / drop sections that don't fit (e.g. an API "curl" example for a CLI tool should become a CLI invocation; a library should show import + usage).
@@ -225,14 +229,15 @@ Always cross-check the README against the docs you produced (or that already exi
 
 ## Critical rules (don't break these)
 
-1. **Never invent.** Every command, env var, path, endpoint, feature, and dependency must exist in the code you actually read.
-2. **Never overwrite a `README.md` without explicit consent.** The interactive checkpoint in step 4 is mandatory.
-3. **Never put the README template inside `docs/`.** The template is a skill-internal asset; it must only land in a temporary location during generation.
-4. **Adapt, don't transplant.** Treat the template's sections as a *layout*, not a verbatim output. Sections that don't fit should be renamed or dropped.
-5. **Write in English by default.** Switch only if the user explicitly says otherwise (flag or natural phrase). Even then, never translate identifiers, paths, env vars, commands, or code.
-6. **Never invent Mermaid nodes.** Every node in a generated diagram must correspond to a real file, module, class, or external service that was read in the code.
-7. **Never write the body text of a Code of Conduct.** When `EXTRAS=on`, generate `CODE_OF_CONDUCT.md` strictly as a **pointer file** linking to `https://www.contributor-covenant.org/version/2/1/code_of_conduct/` plus a contact line. Do not inline a "pledge", "standards", "scope", "enforcement", or any summary of those sections — standard CoC wording is blocked by AI content filters and will halt the skill mid-execution. Use the exact template in [`references/extras-templates.md`](references/extras-templates.md) without expansion.
-8. **Don't commit.** Leave files staged in the working directory for the user to review.
+1. **Portable, relative paths only.** Every link in generated docs (to other docs, source files, assets, anchors) MUST be relative to the file that contains the link. Never emit absolute paths (`/Users/...`, `/home/...`, `C:\...`, `file://`), project-root-anchored paths (`/src/...`), `~`-expansions, or paths derived from the generating machine's filesystem. The docs must render correctly after `git clone` on any OS. This applies to Markdown links, image sources, Mermaid `click` directives, and any path string inside code blocks that the reader is expected to follow.
+2. **Never invent.** Every command, env var, path, endpoint, feature, and dependency must exist in the code you actually read.
+3. **Never overwrite a `README.md` without explicit consent.** The interactive checkpoint in step 4 is mandatory.
+4. **Never put the README template inside `docs/`.** The template is a skill-internal asset; it must only land in a temporary location during generation.
+5. **Adapt, don't transplant.** Treat the template's sections as a *layout*, not a verbatim output. Sections that don't fit should be renamed or dropped.
+6. **Write in English by default.** Switch only if the user explicitly says otherwise (flag or natural phrase). Even then, never translate identifiers, paths, env vars, commands, or code.
+7. **Never invent Mermaid nodes.** Every node in a generated diagram must correspond to a real file, module, class, or external service that was read in the code.
+8. **Never write the body text of a Code of Conduct.** When `EXTRAS=on`, generate `CODE_OF_CONDUCT.md` strictly as a **pointer file** linking to `https://www.contributor-covenant.org/version/2/1/code_of_conduct/` plus a contact line. Do not inline a "pledge", "standards", "scope", "enforcement", or any summary of those sections — standard CoC wording is blocked by AI content filters and will halt the skill mid-execution. Use the exact template in [`references/extras-templates.md`](references/extras-templates.md) without expansion.
+9. **Don't commit.** Leave files staged in the working directory for the user to review.
 
 ---
 

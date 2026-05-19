@@ -31,10 +31,16 @@ When skipping, just produce the textual documentation as before. Do not leave em
 
 **Every node / box / actor must map to a real file, module, class, or external service that you read in the code.** Diagrams are documentation, not marketing. If you cannot point to the source file for a node, drop the node.
 
-Cite the source under the diagram:
+Cite the source under the diagram. **All cited paths and any `click` directives must be relative to the doc file containing the diagram** — never `/Users/...`, `/home/...`, `/src/...`, or other absolute / root-anchored forms. The diagram must work after `git clone` on any machine.
 
 ```markdown
 > Source: [src/server.ts](../../src/server.ts), [src/routes/](../../src/routes/), [src/db/client.ts](../../src/db/client.ts)
+```
+
+If you use `click` directives to make nodes navigable, apply the same rule:
+
+```mermaid
+click API "../../src/server.ts" "Open server.ts"
 ```
 
 ## Templates

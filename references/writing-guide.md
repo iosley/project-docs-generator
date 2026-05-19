@@ -31,7 +31,14 @@ Go deeper only when the topic warrants it — non-obvious environment-variable b
 
 **Code blocks with language tags** — `bash` for shell, `json` for payloads, `env` for env files, plus the project's primary language tag.
 
-**Relative links** — never absolute paths. Always linkable from the file the reader is in.
+**Relative links — portability is non-negotiable.** Every link must be relative to the file that contains it, counting `../` hops from that doc's directory. Never emit absolute paths (`/Users/...`, `/home/...`, `C:\...`, `file://...`), project-root-anchored paths (`/src/...`), or `~`-expansions — they break on every other machine. This rule covers Markdown links, image `src`, and Mermaid `click` directives.
+
+| Context | ✅ Correct | ❌ Wrong |
+| --- | --- | --- |
+| Doc → sibling doc | `[overview](overview.md)` | `/docs/overview.md` |
+| Doc → source file | `[server.ts](../../src/server.ts)` | `/src/server.ts`, `/Users/me/repo/src/server.ts` |
+| Root `README.md` → docs | `[docs/README.md](docs/README.md)` | `/docs/README.md` |
+| Mermaid `click` | `click Node "../../src/server.ts"` | `click Node "/src/server.ts"` |
 
 **Inline code for** identifiers, file names, env vars, commands.
 
